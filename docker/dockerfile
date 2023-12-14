@@ -1,11 +1,32 @@
 FROM nvidia/cuda:11.3.1-cudnn8-devel-ubuntu20.04
+# FROM nvidia/cuda:11.6.1-cudnn8-devel-ubuntu20.04
 
 ENV TZ=US/Pacific
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
+# Update package list and install software-properties-common for add-apt-repository
 RUN apt-get update --fix-missing && \
-    apt-get install -y libgtk2.0-dev && \
-    apt-get install -y wget bzip2 ca-certificates curl git vim tmux g++ gcc build-essential cmake checkinstall gfortran libjpeg8-dev libtiff5-dev pkg-config yasm libavcodec-dev libavformat-dev libswscale-dev libdc1394-22-dev libxine2-dev libv4l-dev qt5-default libgtk2.0-dev libtbb-dev libatlas-base-dev libfaac-dev libmp3lame-dev libtheora-dev libvorbis-dev libxvidcore-dev libopencore-amrnb-dev libopencore-amrwb-dev x264 v4l-utils libprotobuf-dev protobuf-compiler libgoogle-glog-dev libgflags-dev libgphoto2-dev libhdf5-dev doxygen libflann-dev libboost-all-dev proj-data libproj-dev libyaml-cpp-dev cmake-curses-gui
+    apt-get install -y software-properties-common
+
+# Add the Ubuntu Toolchain Test PPA for newer GCC versions
+RUN add-apt-repository ppa:ubuntu-toolchain-r/test -y
+
+# Install GCC-10 and update alternatives to use the new GCC version
+RUN apt-get update && apt-get install -y gcc-10 g++-10 && \
+    update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-10 100 && \
+    update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-10 100
+
+# Continue with your existing commands
+RUN apt-get install -y libgtk2.0-dev wget bzip2 ca-certificates curl git vim tmux g++ gcc build-essential cmake checkinstall gfortran libjpeg8-dev libtiff5-dev pkg-config yasm libavcodec-dev libavformat-dev libswscale-dev libdc1394-22-dev libxine2-dev libv4l-dev qt5-default libgtk2.0-dev libtbb-dev libatlas-base-dev libfaac-dev libmp3lame-dev libtheora-dev libvorbis-dev libxvidcore-dev libopencore-amrnb-dev libopencore-amrwb-dev x264 v4l-utils libprotobuf-dev protobuf-compiler libgoogle-glog-dev libgflags-dev libgphoto2-dev libhdf5-dev doxygen libflann-dev libboost-all-dev proj-data libproj-dev libyaml-cpp-dev cmake-curses-gui
+
+
+
+# ENV TZ=US/Pacific
+# RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
+# RUN apt-get update --fix-missing && \
+#     apt-get install -y libgtk2.0-dev && \
+#     apt-get install -y wget bzip2 ca-certificates curl git vim tmux g++ gcc build-essential cmake checkinstall gfortran libjpeg8-dev libtiff5-dev pkg-config yasm libavcodec-dev libavformat-dev libswscale-dev libdc1394-22-dev libxine2-dev libv4l-dev qt5-default libgtk2.0-dev libtbb-dev libatlas-base-dev libfaac-dev libmp3lame-dev libtheora-dev libvorbis-dev libxvidcore-dev libopencore-amrnb-dev libopencore-amrwb-dev x264 v4l-utils libprotobuf-dev protobuf-compiler libgoogle-glog-dev libgflags-dev libgphoto2-dev libhdf5-dev doxygen libflann-dev libboost-all-dev proj-data libproj-dev libyaml-cpp-dev cmake-curses-gui
 
 
 RUN cd / && wget https://gitlab.com/libeigen/eigen/-/archive/3.4.0/eigen-3.4.0.tar.gz &&\
@@ -100,3 +121,5 @@ RUN pip install transformations einops scikit-image awscli-plugin-endpoint gputi
 
 RUN apt-get update --fix-missing && \
     apt install -y rsync lbzip2 pigz zip p7zip-full p7zip-rar
+
+RUN apt-get upgrade -y
